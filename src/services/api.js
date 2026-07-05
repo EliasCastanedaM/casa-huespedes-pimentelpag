@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:4000/api",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:4000/api",
 });
 
 export default api;
@@ -61,6 +61,7 @@ export async function createInquiry(inquiryData) {
     );
   }
 }
+
 export async function getInquiries() {
   try {
     const response = await api.get("/inquiries");
@@ -82,13 +83,15 @@ export async function updateInquiryStatus(id, status) {
     );
   }
 }
+
 export async function getAvailabilitySettings() {
   try {
     const response = await api.get("/settings/availability");
     return response.data.data;
   } catch (error) {
     throw new Error(
-      error.response?.data?.message || "Error al obtener configuración de horarios."
+      error.response?.data?.message ||
+        "Error al obtener configuración de horarios."
     );
   }
 }
@@ -99,7 +102,8 @@ export async function updateAvailabilitySettings(settingsData) {
     return response.data.data;
   } catch (error) {
     throw new Error(
-      error.response?.data?.message || "Error al actualizar configuración de horarios."
+      error.response?.data?.message ||
+        "Error al actualizar configuración de horarios."
     );
   }
 }
@@ -136,6 +140,7 @@ export async function deleteBlockedSlot(id) {
     );
   }
 }
+
 export async function loginAdmin(credentials) {
   try {
     const response = await api.post("/auth/login", credentials);
@@ -146,6 +151,7 @@ export async function loginAdmin(credentials) {
     );
   }
 }
+
 export async function getDashboardData() {
   try {
     const [bookings, inquiries, rooms] = await Promise.all([
@@ -165,13 +171,21 @@ export async function getDashboardData() {
     );
   }
 }
+
 export async function getRoomAvailability({ check_in, nights, check_in_time }) {
-  const params = new URLSearchParams();
+  try {
+    const params = new URLSearchParams();
 
-  if (check_in) params.append("check_in", check_in);
-  if (nights) params.append("nights", nights);
-  if (check_in_time) params.append("check_in_time", check_in_time);
+    if (check_in) params.append("check_in", check_in);
+    if (nights) params.append("nights", nights);
+    if (check_in_time) params.append("check_in_time", check_in_time);
 
-  const response = await api.get(`/availability?${params.toString()}`);
-  return response.data;
+    const response = await api.get(`/availability?${params.toString()}`);
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.message ||
+        "Error al consultar disponibilidad de habitaciones."
+    );
+  }
 }

@@ -20,6 +20,7 @@ const days = [
 
 function formatDate(value) {
   if (!value) return "-";
+
   return new Date(value).toLocaleDateString("es-PE", {
     year: "numeric",
     month: "2-digit",
@@ -44,6 +45,7 @@ export default function ScheduleAdmin() {
 
   const [rooms, setRooms] = useState([]);
   const [blockedSlots, setBlockedSlots] = useState([]);
+
   const [blockForm, setBlockForm] = useState({
     room_id: "",
     blocked_date: "",
@@ -195,23 +197,51 @@ export default function ScheduleAdmin() {
     }
   }
 
+  const activeDays = days.filter((day) => settings[day.key]).length;
+
   return (
-    <main className="min-h-screen bg-slate-50 p-5 md:p-8">
+    <main className="min-h-screen bg-[#f7f1e8] px-5 py-6 md:px-8 md:py-8">
       <section className="max-w-7xl mx-auto">
-        <div>
-          <p className="uppercase tracking-[0.25em] text-sm font-black text-brand-ocean">
-            Panel administrativo
-          </p>
+        {/* ENCABEZADO */}
+        <div className="relative overflow-hidden rounded-[1.7rem] bg-[#2b1d12] border border-[#eadfce] shadow-sm">
+          <div className="absolute inset-0 opacity-20">
+            <img
+              src="https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1800&auto=format&fit=crop"
+              alt="Casa Huéspedes Pimentel"
+              className="w-full h-full object-cover"
+            />
+          </div>
 
-          <h1 className="text-4xl md:text-5xl font-black text-brand-dark mt-2">
-            Horarios y bloqueos
-          </h1>
+          <div className="absolute inset-0 bg-gradient-to-r from-[#2b1d12] via-[#2b1d12]/92 to-[#2b1d12]/65" />
 
-          <p className="text-slate-600 mt-3">
-            Configura el horario general de atención y bloquea fechas u horas no disponibles.
-          </p>
+          <div className="relative p-6 md:p-8 lg:p-10 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+            <div>
+              <p className="uppercase tracking-[0.26em] text-xs font-black text-[#d9b48f]">
+                Panel administrativo
+              </p>
+
+              <h1 className="font-serif text-4xl md:text-6xl leading-none tracking-[-0.045em] text-white mt-3">
+                Horarios y bloqueos
+              </h1>
+
+              <p className="text-white/75 leading-relaxed mt-4 max-w-2xl">
+                Configura los horarios de atención y bloquea fechas u horas no
+                disponibles para reservas.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={loadData}
+              disabled={isLoading}
+              className="w-fit bg-[#d9b48f] text-[#2b1d12] px-5 py-3 rounded-xl font-black hover:bg-[#c99c6c] transition disabled:opacity-60"
+            >
+              {isLoading ? "Actualizando..." : "Actualizar"}
+            </button>
+          </div>
         </div>
 
+        {/* MENSAJES */}
         {error && (
           <div className="mt-6 rounded-2xl bg-red-50 border border-red-200 text-red-700 px-4 py-3 font-bold">
             {error}
@@ -219,279 +249,384 @@ export default function ScheduleAdmin() {
         )}
 
         {message && (
-          <div className="mt-6 rounded-2xl bg-green-50 border border-green-200 text-green-700 px-4 py-3 font-bold">
+          <div className="mt-6 rounded-2xl bg-[#f0fdf4] border border-[#bbf7d0] text-[#166534] px-4 py-3 font-bold">
             {message}
           </div>
         )}
 
         {isLoading ? (
-          <div className="mt-8 bg-white rounded-3xl border border-slate-200 p-8 text-center font-bold text-slate-500">
+          <div className="mt-8 bg-white rounded-[1.5rem] border border-[#eadfce] p-8 text-center font-bold text-[#6f6258] shadow-sm">
             Cargando configuración...
           </div>
         ) : (
-          <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-6 mt-8">
-            <form
-              onSubmit={handleSaveSettings}
-              className="bg-white rounded-3xl border border-slate-200 p-6"
-            >
-              <h2 className="text-2xl font-black text-brand-dark">
-                Configuración general
-              </h2>
+          <>
+            {/* RESUMEN */}
+            <div className="grid md:grid-cols-3 gap-4 mt-6">
+              <SummaryCard
+                title="Horario"
+                value={`${settings.start_time} - ${settings.end_time}`}
+                helper="Rango de atención configurado"
+                icon="🕘"
+              />
 
-              <div className="grid sm:grid-cols-2 gap-4 mt-6">
-                <div>
-                  <label className="block text-xs font-black tracking-widest text-brand-navy mb-2">
-                    HORA INICIO
-                  </label>
-                  <input
-                    type="time"
-                    name="start_time"
-                    value={settings.start_time}
-                    onChange={handleSettingsChange}
-                    className="w-full border border-slate-200 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-brand-gold"
-                  />
-                </div>
+              <SummaryCard
+                title="Días disponibles"
+                value={`${activeDays} de 7`}
+                helper="Días activos para atención"
+                icon="📆"
+              />
 
-                <div>
-                  <label className="block text-xs font-black tracking-widest text-brand-navy mb-2">
-                    HORA FIN
-                  </label>
-                  <input
-                    type="time"
-                    name="end_time"
-                    value={settings.end_time}
-                    onChange={handleSettingsChange}
-                    className="w-full border border-slate-200 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-brand-gold"
-                  />
-                </div>
+              <SummaryCard
+                title="Bloqueos"
+                value={blockedSlots.length}
+                helper="Fechas u horas no disponibles"
+                icon="⛔"
+              />
+            </div>
 
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-black tracking-widest text-brand-navy mb-2">
-                    DURACIÓN DEL BLOQUE / MINUTOS
-                  </label>
-                  <input
-                    type="number"
-                    name="slot_minutes"
-                    min="30"
-                    step="30"
-                    value={settings.slot_minutes}
-                    onChange={handleSettingsChange}
-                    className="w-full border border-slate-200 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-brand-gold"
-                  />
-                </div>
-              </div>
-
-              <div className="mt-6">
-                <p className="text-sm font-black text-brand-dark">
-                  Días disponibles
-                </p>
-
-                <div className="grid sm:grid-cols-2 gap-3 mt-3">
-                  {days.map((day) => (
-                    <label
-                      key={day.key}
-                      className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 font-bold text-slate-700"
-                    >
-                      <input
-                        type="checkbox"
-                        name={day.key}
-                        checked={settings[day.key]}
-                        onChange={handleSettingsChange}
-                      />
-                      {day.label}
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <label className="mt-6 flex items-center gap-3 bg-brand-sand border border-brand-border rounded-2xl px-4 py-3 font-black text-brand-dark">
-                <input
-                  type="checkbox"
-                  name="is_active"
-                  checked={settings.is_active}
-                  onChange={handleSettingsChange}
-                />
-                Sistema de horarios activo
-              </label>
-
-              <button
-                type="submit"
-                disabled={isSavingSettings}
-                className="w-full mt-6 bg-brand-ocean text-white rounded-full py-4 font-black hover:bg-brand-dark transition disabled:opacity-60"
-              >
-                {isSavingSettings ? "Guardando..." : "Guardar configuración"}
-              </button>
-            </form>
-
-            <div className="space-y-6">
+            <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-6 mt-6">
+              {/* CONFIGURACIÓN GENERAL */}
               <form
-                onSubmit={handleCreateBlock}
-                className="bg-white rounded-3xl border border-slate-200 p-6"
+                onSubmit={handleSaveSettings}
+                className="bg-white rounded-[1.5rem] border border-[#eadfce] p-6 shadow-sm"
               >
-                <h2 className="text-2xl font-black text-brand-dark">
-                  Crear bloqueo
-                </h2>
+                <div>
+                  <p className="uppercase tracking-[0.2em] text-[11px] font-black text-[#a87545]">
+                    Atención
+                  </p>
+
+                  <h2 className="font-serif text-3xl leading-none tracking-[-0.035em] text-[#2d261f] mt-2">
+                    Configuración general
+                  </h2>
+
+                  <p className="text-[#6f6258] text-sm mt-2 leading-relaxed">
+                    Define el horario base y los días habilitados para recibir
+                    solicitudes desde la web.
+                  </p>
+                </div>
 
                 <div className="grid sm:grid-cols-2 gap-4 mt-6">
-                  <div className="sm:col-span-2">
-                    <label className="block text-xs font-black tracking-widest text-brand-navy mb-2">
-                      HABITACIÓN
-                    </label>
-                    <select
-                      name="room_id"
-                      value={blockForm.room_id}
-                      onChange={handleBlockChange}
-                      className="w-full border border-slate-200 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-brand-gold bg-white"
-                    >
-                      <option value="">Seleccionar habitación</option>
-                      {rooms.map((room) => (
-                        <option key={room.id} value={room.id}>
-                          {room.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
                   <div>
-                    <label className="block text-xs font-black tracking-widest text-brand-navy mb-2">
-                      FECHA
-                    </label>
+                    <label className="admin-label">Hora inicio</label>
+
                     <input
-                      type="date"
-                      name="blocked_date"
-                      value={blockForm.blocked_date}
-                      onChange={handleBlockChange}
-                      className="w-full border border-slate-200 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-brand-gold"
+                      type="time"
+                      name="start_time"
+                      value={settings.start_time}
+                      onChange={handleSettingsChange}
+                      className="admin-input"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-black tracking-widest text-brand-navy mb-2">
-                      TIPO
-                    </label>
-                    <select
-                      name="block_type"
-                      value={blockForm.block_type}
-                      onChange={handleBlockChange}
-                      className="w-full border border-slate-200 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-brand-gold bg-white"
-                    >
-                      <option value="day">Bloquear todo el día</option>
-                      <option value="time">Bloquear una hora</option>
-                    </select>
+                    <label className="admin-label">Hora fin</label>
+
+                    <input
+                      type="time"
+                      name="end_time"
+                      value={settings.end_time}
+                      onChange={handleSettingsChange}
+                      className="admin-input"
+                    />
                   </div>
 
-                  {blockForm.block_type === "time" && (
-                    <div>
-                      <label className="block text-xs font-black tracking-widest text-brand-navy mb-2">
-                        HORA
-                      </label>
-                      <input
-                        type="time"
-                        name="blocked_time"
-                        value={blockForm.blocked_time}
-                        onChange={handleBlockChange}
-                        className="w-full border border-slate-200 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-brand-gold"
-                      />
-                    </div>
-                  )}
-
                   <div className="sm:col-span-2">
-                    <label className="block text-xs font-black tracking-widest text-brand-navy mb-2">
-                      MOTIVO
+                    <label className="admin-label">
+                      Duración del bloque / minutos
                     </label>
+
                     <input
-                      type="text"
-                      name="reason"
-                      value={blockForm.reason}
-                      onChange={handleBlockChange}
-                      placeholder="Ej. mantenimiento, reserva manual, limpieza profunda..."
-                      className="w-full border border-slate-200 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-brand-gold"
+                      type="number"
+                      name="slot_minutes"
+                      min="30"
+                      step="30"
+                      value={settings.slot_minutes}
+                      onChange={handleSettingsChange}
+                      className="admin-input"
                     />
                   </div>
                 </div>
+
+                <div className="mt-6">
+                  <p className="text-sm font-black text-[#2d261f]">
+                    Días disponibles
+                  </p>
+
+                  <div className="grid sm:grid-cols-2 gap-3 mt-3">
+                    {days.map((day) => (
+                      <label
+                        key={day.key}
+                        className={`flex items-center gap-3 border rounded-xl px-4 py-3 font-black transition ${
+                          settings[day.key]
+                            ? "bg-[#fbf7ef] border-[#d9b48f] text-[#2d261f]"
+                            : "bg-white border-[#eadfce] text-[#9d9187]"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          name={day.key}
+                          checked={settings[day.key]}
+                          onChange={handleSettingsChange}
+                          className="accent-[#a87545]"
+                        />
+
+                        {day.label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <label
+                  className={`mt-6 flex items-center gap-3 border rounded-xl px-4 py-3 font-black transition ${
+                    settings.is_active
+                      ? "bg-[#f0fdf4] border-[#bbf7d0] text-[#166534]"
+                      : "bg-[#fef2f2] border-[#fecaca] text-[#991b1b]"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    name="is_active"
+                    checked={settings.is_active}
+                    onChange={handleSettingsChange}
+                    className="accent-[#a87545]"
+                  />
+
+                  {settings.is_active
+                    ? "Sistema de horarios activo"
+                    : "Sistema de horarios inactivo"}
+                </label>
 
                 <button
                   type="submit"
-                  disabled={isSavingBlock}
-                  className="w-full mt-6 bg-brand-gold text-brand-navy rounded-full py-4 font-black hover:bg-brand-goldDark transition disabled:opacity-60"
+                  disabled={isSavingSettings}
+                  className="w-full mt-6 bg-[#2b1d12] text-white rounded-xl py-4 font-black hover:bg-[#3a291b] transition disabled:opacity-60"
                 >
-                  {isSavingBlock ? "Creando..." : "Crear bloqueo"}
+                  {isSavingSettings ? "Guardando..." : "Guardar configuración"}
                 </button>
               </form>
 
-              <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden">
-                <div className="p-6 border-b border-slate-100">
-                  <h2 className="text-2xl font-black text-brand-dark">
-                    Bloqueos registrados
-                  </h2>
-                </div>
+              <div className="space-y-6">
+                {/* CREAR BLOQUEO */}
+                <form
+                  onSubmit={handleCreateBlock}
+                  className="bg-white rounded-[1.5rem] border border-[#eadfce] p-6 shadow-sm"
+                >
+                  <div>
+                    <p className="uppercase tracking-[0.2em] text-[11px] font-black text-[#a87545]">
+                      Disponibilidad
+                    </p>
 
-                {blockedSlots.length === 0 ? (
-                  <div className="p-6 text-center font-bold text-slate-500">
-                    No hay bloqueos registrados.
+                    <h2 className="font-serif text-3xl leading-none tracking-[-0.035em] text-[#2d261f] mt-2">
+                      Crear bloqueo
+                    </h2>
+
+                    <p className="text-[#6f6258] text-sm mt-2 leading-relaxed">
+                      Bloquea una habitación por día completo o por una hora
+                      específica.
+                    </p>
                   </div>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead className="bg-brand-dark text-white">
-                        <tr>
-                          <th className="text-left p-4">Habitación</th>
-                          <th className="text-left p-4">Fecha</th>
-                          <th className="text-left p-4">Tipo</th>
-                          <th className="text-left p-4">Motivo</th>
-                          <th className="text-left p-4">Acción</th>
-                        </tr>
-                      </thead>
 
-                      <tbody>
-                        {blockedSlots.map((slot) => (
-                          <tr
-                            key={slot.id}
-                            className="border-b border-slate-100 hover:bg-slate-50"
-                          >
-                            <td className="p-4 font-black text-slate-800">
-                              {slot.room_name || `Habitación ${slot.room_id}`}
-                            </td>
+                  <div className="grid sm:grid-cols-2 gap-4 mt-6">
+                    <div className="sm:col-span-2">
+                      <label className="admin-label">Habitación</label>
 
-                            <td className="p-4">
-                              <p>{formatDate(slot.blocked_date)}</p>
-                              <p className="text-slate-500">
-                                {slot.block_type === "day"
-                                  ? "Todo el día"
-                                  : slot.blocked_time}
-                              </p>
-                            </td>
+                      <select
+                        name="room_id"
+                        value={blockForm.room_id}
+                        onChange={handleBlockChange}
+                        className="admin-input"
+                      >
+                        <option value="">Seleccionar habitación</option>
 
-                            <td className="p-4">
-                              {slot.block_type === "day"
-                                ? "Día completo"
-                                : "Hora específica"}
-                            </td>
-
-                            <td className="p-4 text-slate-600">
-                              {slot.reason || "-"}
-                            </td>
-
-                            <td className="p-4">
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteBlock(slot.id)}
-                                className="bg-red-600 text-white px-4 py-2 rounded-xl font-black hover:bg-red-700"
-                              >
-                                Eliminar
-                              </button>
-                            </td>
-                          </tr>
+                        {rooms.map((room) => (
+                          <option key={room.id} value={room.id}>
+                            {room.name}
+                          </option>
                         ))}
-                      </tbody>
-                    </table>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="admin-label">Fecha</label>
+
+                      <input
+                        type="date"
+                        name="blocked_date"
+                        value={blockForm.blocked_date}
+                        onChange={handleBlockChange}
+                        className="admin-input"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="admin-label">Tipo</label>
+
+                      <select
+                        name="block_type"
+                        value={blockForm.block_type}
+                        onChange={handleBlockChange}
+                        className="admin-input"
+                      >
+                        <option value="day">Bloquear todo el día</option>
+                        <option value="time">Bloquear una hora</option>
+                      </select>
+                    </div>
+
+                    {blockForm.block_type === "time" && (
+                      <div>
+                        <label className="admin-label">Hora</label>
+
+                        <input
+                          type="time"
+                          name="blocked_time"
+                          value={blockForm.blocked_time}
+                          onChange={handleBlockChange}
+                          className="admin-input"
+                        />
+                      </div>
+                    )}
+
+                    <div className="sm:col-span-2">
+                      <label className="admin-label">Motivo</label>
+
+                      <input
+                        type="text"
+                        name="reason"
+                        value={blockForm.reason}
+                        onChange={handleBlockChange}
+                        placeholder="Ej. mantenimiento, reserva manual, limpieza profunda..."
+                        className="admin-input"
+                      />
+                    </div>
                   </div>
-                )}
+
+                  <button
+                    type="submit"
+                    disabled={isSavingBlock}
+                    className="w-full mt-6 bg-[#a87545] text-white rounded-xl py-4 font-black hover:bg-[#8f623a] transition disabled:opacity-60"
+                  >
+                    {isSavingBlock ? "Creando..." : "Crear bloqueo"}
+                  </button>
+                </form>
+
+                {/* BLOQUEOS REGISTRADOS */}
+                <div className="bg-white rounded-[1.5rem] border border-[#eadfce] overflow-hidden shadow-sm">
+                  <div className="p-6 border-b border-[#eadfce]">
+                    <p className="uppercase tracking-[0.2em] text-[11px] font-black text-[#a87545]">
+                      Registro
+                    </p>
+
+                    <h2 className="font-serif text-3xl leading-none tracking-[-0.035em] text-[#2d261f] mt-2">
+                      Bloqueos registrados
+                    </h2>
+
+                    <p className="text-[#6f6258] text-sm mt-2">
+                      Fechas u horarios actualmente restringidos.
+                    </p>
+                  </div>
+
+                  {blockedSlots.length === 0 ? (
+                    <div className="p-8">
+                      <EmptyBlock text="No hay bloqueos registrados." />
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead className="bg-[#2b1d12] text-white">
+                          <tr>
+                            <th className="text-left px-5 py-4">
+                              Habitación
+                            </th>
+                            <th className="text-left px-5 py-4">Fecha</th>
+                            <th className="text-left px-5 py-4">Tipo</th>
+                            <th className="text-left px-5 py-4">Motivo</th>
+                            <th className="text-left px-5 py-4">Acción</th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {blockedSlots.map((slot) => (
+                            <tr
+                              key={slot.id}
+                              className="border-b border-[#eadfce] hover:bg-[#fbf7ef] transition"
+                            >
+                              <td className="px-5 py-4 font-black text-[#2d261f]">
+                                {slot.room_name || `Habitación ${slot.room_id}`}
+                              </td>
+
+                              <td className="px-5 py-4">
+                                <p className="font-bold text-[#2d261f]">
+                                  {formatDate(slot.blocked_date)}
+                                </p>
+
+                                <p className="text-[#6f6258] text-sm mt-1">
+                                  {slot.block_type === "day"
+                                    ? "Todo el día"
+                                    : slot.blocked_time}
+                                </p>
+                              </td>
+
+                              <td className="px-5 py-4">
+                                <span className="inline-flex border border-[#eadfce] bg-[#fbf7ef] text-[#2d261f] rounded-full px-3 py-1 text-xs font-black">
+                                  {slot.block_type === "day"
+                                    ? "Día completo"
+                                    : "Hora específica"}
+                                </span>
+                              </td>
+
+                              <td className="px-5 py-4 text-[#6f6258]">
+                                {slot.reason || "-"}
+                              </td>
+
+                              <td className="px-5 py-4">
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteBlock(slot.id)}
+                                  className="bg-[#fef2f2] border border-[#fecaca] text-[#991b1b] px-4 py-2 rounded-xl font-black hover:bg-[#fee2e2] transition"
+                                >
+                                  Eliminar
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          </>
         )}
       </section>
     </main>
+  );
+}
+
+function SummaryCard({ title, value, helper, icon }) {
+  return (
+    <article className="bg-white rounded-[1.35rem] border border-[#eadfce] p-5 shadow-sm">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-black text-[#6f6258]">{title}</p>
+
+          <h2 className="text-2xl font-black text-[#2d261f] mt-2">{value}</h2>
+
+          <p className="text-xs text-[#9d9187] font-bold mt-1">{helper}</p>
+        </div>
+
+        <div className="w-11 h-11 rounded-xl bg-[#f7f1e8] border border-[#eadfce] flex items-center justify-center text-xl">
+          {icon}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function EmptyBlock({ text }) {
+  return (
+    <div className="rounded-2xl bg-[#fbf7ef] border border-[#eadfce] p-6 text-center text-[#6f6258] font-bold">
+      {text}
+    </div>
   );
 }

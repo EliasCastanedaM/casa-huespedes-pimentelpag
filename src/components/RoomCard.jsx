@@ -1,66 +1,63 @@
-// Link permite navegar a otra página sin recargar toda la aplicación
 import { Link } from "react-router-dom";
 
-// Este componente muestra una tarjeta visual de una habitación
 export default function RoomCard({ room }) {
-  // Si la habitación no tiene imagen real, usamos una imagen temporal
   const imageUrl =
     room.main_image_url ||
     "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1200&auto=format&fit=crop";
 
   return (
-    <article className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition">
-      
-      {/* Imagen de la habitación */}
-      <div className="h-56 bg-gray-200">
-        <img
-          src={imageUrl}
-          alt={room.name}
-          className="w-full h-full object-cover"
-        />
-      </div>
+    <article className="group bg-white rounded-3xl shadow-sm border border-[#eadfce] overflow-hidden hover:shadow-xl transition duration-300">
+      <Link to={`/habitaciones/${room.id}`} className="block">
+        <div className="relative h-56 bg-gray-200 overflow-hidden">
+          <img
+            src={imageUrl}
+            alt={room.name}
+            className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+          />
 
-      {/* Contenido principal de la tarjeta */}
+          <div className="absolute top-3 left-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-[#4b250f]">
+            Disponible
+          </div>
+
+          <div className="absolute bottom-3 left-3 right-3 flex gap-2">
+            <span className="bg-black/60 text-white text-xs px-3 py-1 rounded-full">
+              📷 {room.photos_count || 30} fotos
+            </span>
+            <span className="bg-black/60 text-white text-xs px-3 py-1 rounded-full">
+              🎥 {room.videos_count || 5} videos
+            </span>
+          </div>
+        </div>
+      </Link>
+
       <div className="p-5">
-        
-        {/* Nombre de la habitación */}
-        <h2 className="text-xl font-bold text-brand-dark">
+        <h2 className="text-xl font-bold text-[#2b2118] line-clamp-1">
           {room.name}
         </h2>
 
-        {/* Descripción corta */}
-        <p className="mt-2 text-sm text-gray-600">
-          {room.description || "Habitación disponible para reserva."}
+        <p className="mt-2 text-sm text-gray-600 line-clamp-2">
+          {room.description || "Habitación cómoda y disponible para reserva."}
         </p>
 
-        {/* Datos rápidos de la habitación */}
-        <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
-          <span>
-            Capacidad: <strong>{room.capacity}</strong>
-          </span>
-
-          <span>
-            Estado: <strong>{room.status}</strong>
-          </span>
+        <div className="mt-4 flex items-center gap-4 text-sm text-gray-600">
+          <span>👤 {room.capacity} huésped(es)</span>
+          <span>🛏️ Hab. {room.id}</span>
         </div>
 
-        {/* Precio y botón de detalle */}
-        <div className="mt-5 flex items-center justify-between gap-4">
-          
-          {/* Precio por noche */}
+        <div className="mt-5 flex items-end justify-between gap-4">
           <div>
             <p className="text-xs text-gray-500">Desde</p>
-            <p className="text-2xl font-bold text-brand-blue">
+            <p className="text-2xl font-black text-[#b77a35]">
               S/ {Number(room.price_per_night).toFixed(2)}
+              <span className="text-xs text-gray-500 font-semibold"> / noche</span>
             </p>
           </div>
 
-          {/* Botón para ver detalle */}
           <Link
             to={`/habitaciones/${room.id}`}
-            className="bg-brand-blue text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-800"
+            className="text-[#4b250f] font-black hover:underline"
           >
-            Ver detalle
+            Ver habitación
           </Link>
         </div>
       </div>

@@ -1183,3 +1183,72 @@
     font-size: 12px;
   }
 }
+.floor-room small {
+  position: relative;
+  z-index: 2;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+
+.floor-room-available small {
+  color: #166534;
+}
+
+.floor-room-blocked small {
+  color: #991b1b;
+}
+
+.floor-room-idle small {
+  color: #57534e;
+}
+
+.floor-room-selected {
+  outline: 4px solid var(--hotel-gold);
+  outline-offset: -4px;
+  box-shadow: 0 0 0 4px rgba(168, 117, 69, 0.22);
+}
+
+.floor-room-selected::after {
+  content: "✓";
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--hotel-gold);
+  color: white;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 900;
+  z-index: 3;
+}
+
+.floor-room-blocked {
+  filter: saturate(1.05);
+}
+
+.floor-room-blocked::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(153, 27, 27, 0.08),
+    rgba(153, 27, 27, 0.08) 8px,
+    transparent 8px,
+    transparent 16px
+  );
+  z-index: 1;
+}
+
+.floor-room strong,
+.floor-room span,
+.floor-room small {
+  position: relative;
+  z-index: 2;
+}

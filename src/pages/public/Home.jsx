@@ -70,15 +70,18 @@ function getTomorrowDate() {
 }
 
 function normalizeRoomStatus(room, hasDateSelected) {
+  if (!room) return "idle";
+
   if (!hasDateSelected) return "idle";
 
-  if (room.availability_status) return room.availability_status;
-  if (room.status === "available") return "available";
-  if (room.status === "blocked") return "blocked";
-  if (room.status === "maintenance") return "blocked";
-  if (room.status === "inactive") return "blocked";
+  const status = room.availability_status || room.status;
 
-  return room.status === "active" ? "available" : "blocked";
+  if (status === "available") return "available";
+  if (status === "blocked") return "blocked";
+  if (status === "maintenance") return "blocked";
+  if (status === "inactive") return "blocked";
+
+  return status === "active" ? "available" : "blocked";
 }
 
 export default function Home() {
@@ -896,12 +899,40 @@ function FloorPlan({
   const firstFloorRooms = rooms.slice(0, 5);
 
   const slots = [
-    firstFloorRooms[0],
-    firstFloorRooms[1],
-    firstFloorRooms[2],
-    firstFloorRooms[3],
-    firstFloorRooms[4],
+    {
+      code: "101",
+      room: firstFloorRooms[0],
+      area: "room-1",
+    },
+    {
+      code: "102",
+      room: firstFloorRooms[1],
+      area: "room-2",
+    },
+    {
+      code: "103",
+      room: firstFloorRooms[2],
+      area: "room-3",
+    },
+    {
+      code: "104",
+      room: firstFloorRooms[3],
+      area: "room-4",
+    },
+    {
+      code: "105",
+      room: firstFloorRooms[4],
+      area: "room-5",
+    },
   ];
+
+  const availableCount = firstFloorRooms.filter(
+    (room) => normalizeRoomStatus(room, hasDateSelected) === "available"
+  ).length;
+
+  const blockedCount = firstFloorRooms.filter(
+    (room) => normalizeRoomStatus(room, hasDateSelected) === "blocked"
+  ).length;
 
   return (
     <div className="floor-card">
@@ -926,50 +957,22 @@ function FloorPlan({
         {isChecking
           ? "Consultando disponibilidad..."
           : hasDateSelected
-            ? "Disponibilidad actualizada según la fecha seleccionada."
+            ? `${availableCount} disponible(s) y ${blockedCount} bloqueada(s) para la fecha seleccionada.`
             : "Selecciona una fecha para consultar disponibilidad."}
       </div>
 
       <div className="floor-plan">
-        <RoomBox
-          room={slots[0]}
-          area="room-1"
-          selectedRoomId={selectedRoomId}
-          hasDateSelected={hasDateSelected}
-          onSelectRoom={onSelectRoom}
-        />
-
-        <RoomBox
-          room={slots[1]}
-          area="room-2"
-          selectedRoomId={selectedRoomId}
-          hasDateSelected={hasDateSelected}
-          onSelectRoom={onSelectRoom}
-        />
-
-        <RoomBox
-          room={slots[2]}
-          area="room-3"
-          selectedRoomId={selectedRoomId}
-          hasDateSelected={hasDateSelected}
-          onSelectRoom={onSelectRoom}
-        />
-
-        <RoomBox
-          room={slots[3]}
-          area="room-4"
-          selectedRoomId={selectedRoomId}
-          hasDateSelected={hasDateSelected}
-          onSelectRoom={onSelectRoom}
-        />
-
-        <RoomBox
-          room={slots[4]}
-          area="room-5"
-          selectedRoomId={selectedRoomId}
-          hasDateSelected={hasDateSelected}
-          onSelectRoom={onSelectRoom}
-        />
+        {slots.map((slot) => (
+          <RoomBox
+            key={slot.code}
+            code={slot.code}
+            room={slot.room}
+            area={slot.area}
+            selectedRoomId={selectedRoomId}
+            hasDateSelected={hasDateSelected}
+            onSelectRoom={onSelectRoom}
+          />
+        ))}
 
         <div className="floor-corridor">Pasillo</div>
         <div className="floor-reception">Recepción</div>
@@ -977,14 +980,15 @@ function FloorPlan({
       </div>
 
       <div className="floor-note">
-        Al seleccionar una habitación del plano, se completa automáticamente en
-        el formulario.
+        Al seleccionar una habitación disponible del plano, se completa
+        automáticamente en el formulario.
       </div>
     </div>
   );
 }
 
 function RoomBox({
+  code,
   room,
   area,
   selectedRoomId,
@@ -994,7 +998,8 @@ function RoomBox({
   if (!room) {
     return (
       <div className={`floor-room floor-room-empty ${area}`}>
-        <span>Sin habitación</span>
+        <strong>Hab. {code}</strong>
+        <span>Sin datos</span>
       </div>
     );
   }
@@ -1008,12 +1013,21 @@ function RoomBox({
       type="button"
       onClick={() => onSelectRoom(room)}
       disabled={isBlocked}
+      title={room.name}
       className={`floor-room ${area} floor-room-${roomStatus} ${
         isSelected ? "floor-room-selected" : ""
       }`}
     >
-      <strong>{room.name || `Hab. ${room.id}`}</strong>
+      <strong>Hab. {code}</strong>
       <span>{room.capacity || 1} persona(s)</span>
+
+      <small>
+        {!hasDateSelected
+          ? "Pendiente"
+          : isBlocked
+            ? "Bloqueada"
+            : "Disponible"}
+      </small>
     </button>
   );
 }

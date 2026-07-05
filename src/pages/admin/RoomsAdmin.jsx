@@ -17,18 +17,18 @@ function getStatusLabel(status) {
 
 function getStatusClass(status) {
   if (status === "active") {
-    return "bg-green-50 text-green-700 border-green-200";
+    return "bg-[#f0fdf4] text-[#166534] border-[#bbf7d0]";
   }
 
   if (status === "inactive") {
-    return "bg-slate-50 text-slate-700 border-slate-200";
+    return "bg-[#f8fafc] text-[#475569] border-[#e2e8f0]";
   }
 
   if (status === "maintenance") {
-    return "bg-yellow-50 text-yellow-700 border-yellow-200";
+    return "bg-[#fff7ed] text-[#9a5b13] border-[#fed7aa]";
   }
 
-  return "bg-slate-50 text-slate-700 border-slate-200";
+  return "bg-[#f8fafc] text-[#475569] border-[#e2e8f0]";
 }
 
 export default function RoomsAdmin() {
@@ -254,36 +254,76 @@ export default function RoomsAdmin() {
     });
   }, [rooms, searchTerm, statusFilter]);
 
+  const summaryCards = [
+    {
+      title: "Total habitaciones",
+      value: stats.totalRooms,
+      helper: "Registradas",
+      icon: "🛏️",
+    },
+    {
+      title: "Activas",
+      value: stats.activeRooms,
+      helper: "Visibles en la web",
+      icon: "✅",
+    },
+    {
+      title: "Inactivas",
+      value: stats.inactiveRooms,
+      helper: "No disponibles",
+      icon: "⏸️",
+    },
+    {
+      title: "Mantenimiento",
+      value: stats.maintenanceRooms,
+      helper: "En revisión",
+      icon: "🛠️",
+    },
+  ];
+
   return (
-    <main className="min-h-screen bg-slate-50 p-5 md:p-8">
+    <main className="min-h-screen bg-[#f7f1e8] px-5 py-6 md:px-8 md:py-8">
       <section className="max-w-7xl mx-auto">
-        {/* Encabezado */}
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
-          <div>
-            <p className="uppercase tracking-[0.25em] text-sm font-black text-brand-ocean">
-              Panel administrativo
-            </p>
-
-            <h1 className="text-4xl md:text-5xl font-black text-brand-dark mt-2">
-              Habitaciones
-            </h1>
-
-            <p className="text-slate-600 mt-3">
-              Crea, edita y administra las habitaciones que se muestran en la
-              web pública.
-            </p>
+        {/* ENCABEZADO */}
+        <div className="relative overflow-hidden rounded-[1.7rem] bg-[#2b1d12] border border-[#eadfce] shadow-sm">
+          <div className="absolute inset-0 opacity-20">
+            <img
+              src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?q=80&w=1800&auto=format&fit=crop"
+              alt="Habitaciones Casa Huéspedes Pimentel"
+              className="w-full h-full object-cover"
+            />
           </div>
 
-          <button
-            type="button"
-            onClick={loadRooms}
-            className="bg-white border border-slate-200 text-brand-dark px-5 py-3 rounded-full font-black hover:bg-slate-100 transition"
-          >
-            Actualizar
-          </button>
+          <div className="absolute inset-0 bg-gradient-to-r from-[#2b1d12] via-[#2b1d12]/92 to-[#2b1d12]/65" />
+
+          <div className="relative p-6 md:p-8 lg:p-10 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+            <div>
+              <p className="uppercase tracking-[0.26em] text-xs font-black text-[#d9b48f]">
+                Panel administrativo
+              </p>
+
+              <h1 className="font-serif text-4xl md:text-6xl leading-none tracking-[-0.045em] text-white mt-3">
+                Habitaciones
+              </h1>
+
+              <p className="text-white/75 leading-relaxed mt-4 max-w-2xl">
+                Crea, edita y administra las habitaciones que se muestran en la
+                web pública del hospedaje.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={loadRooms}
+              disabled={loading}
+              className="w-fit bg-[#d9b48f] text-[#2b1d12] px-5 py-3 rounded-xl font-black hover:bg-[#c99c6c] transition disabled:opacity-60"
+            >
+              {loading ? "Actualizando..." : "Actualizar"}
+            </button>
+          </div>
         </div>
 
-        {/* Mensajes */}
+        {/* MENSAJES */}
         {error && (
           <div className="mt-6 rounded-2xl bg-red-50 border border-red-200 text-red-700 px-4 py-3 font-bold">
             {error}
@@ -291,61 +331,47 @@ export default function RoomsAdmin() {
         )}
 
         {success && (
-          <div className="mt-6 rounded-2xl bg-green-50 border border-green-200 text-green-700 px-4 py-3 font-bold">
+          <div className="mt-6 rounded-2xl bg-[#f0fdf4] border border-[#bbf7d0] text-[#166534] px-4 py-3 font-bold">
             {success}
           </div>
         )}
 
-        {/* Métricas */}
-        <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-4 mt-8">
-          <article className="bg-white rounded-2xl border border-slate-200 p-5">
-            <p className="text-slate-500 font-bold">Total habitaciones</p>
-            <h2 className="text-3xl font-black text-brand-dark mt-2">
-              {stats.totalRooms}
-            </h2>
-          </article>
-
-          <article className="bg-white rounded-2xl border border-slate-200 p-5">
-            <p className="text-slate-500 font-bold">Activas</p>
-            <h2 className="text-3xl font-black text-green-600 mt-2">
-              {stats.activeRooms}
-            </h2>
-          </article>
-
-          <article className="bg-white rounded-2xl border border-slate-200 p-5">
-            <p className="text-slate-500 font-bold">Inactivas</p>
-            <h2 className="text-3xl font-black text-slate-600 mt-2">
-              {stats.inactiveRooms}
-            </h2>
-          </article>
-
-          <article className="bg-white rounded-2xl border border-slate-200 p-5">
-            <p className="text-slate-500 font-bold">Mantenimiento</p>
-            <h2 className="text-3xl font-black text-yellow-600 mt-2">
-              {stats.maintenanceRooms}
-            </h2>
-          </article>
+        {/* MÉTRICAS */}
+        <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-4 mt-6">
+          {summaryCards.map((card) => (
+            <SummaryCard
+              key={card.title}
+              title={card.title}
+              value={card.value}
+              helper={card.helper}
+              icon={card.icon}
+            />
+          ))}
         </div>
 
-        {/* Formulario */}
+        {/* FORMULARIO */}
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-3xl border border-slate-200 p-6 mt-8"
+          className="bg-white rounded-[1.5rem] border border-[#eadfce] p-6 mt-6 shadow-sm"
         >
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
             <div>
-              <h2 className="text-2xl font-black text-brand-dark">
+              <p className="uppercase tracking-[0.2em] text-[11px] font-black text-[#a87545]">
+                Gestión
+              </p>
+
+              <h2 className="font-serif text-3xl leading-none tracking-[-0.035em] text-[#2d261f] mt-2">
                 {editingRoomId ? "Editar habitación" : "Crear nueva habitación"}
               </h2>
 
-              <p className="text-slate-500 text-sm mt-1">
+              <p className="text-[#6f6258] text-sm mt-2 leading-relaxed">
                 Las habitaciones activas aparecen en la web y pueden ser
                 seleccionadas por los huéspedes.
               </p>
             </div>
 
             {editingRoomId && (
-              <span className="inline-flex w-fit rounded-full bg-brand-gold text-brand-navy px-4 py-2 text-sm font-black">
+              <span className="inline-flex w-fit rounded-full bg-[#fbf7ef] border border-[#d9b48f] text-[#2d261f] px-4 py-2 text-sm font-black">
                 Editando habitación #{editingRoomId}
               </span>
             )}
@@ -353,9 +379,7 @@ export default function RoomsAdmin() {
 
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-black tracking-widest text-brand-navy mb-2">
-                NOMBRE DE HABITACIÓN
-              </label>
+              <label className="admin-label">Nombre de habitación</label>
 
               <input
                 type="text"
@@ -363,14 +387,12 @@ export default function RoomsAdmin() {
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="Ej: Habitación Familiar con terraza"
-                className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-brand-gold"
+                className="admin-input"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-black tracking-widest text-brand-navy mb-2">
-                CAPACIDAD
-              </label>
+              <label className="admin-label">Capacidad</label>
 
               <input
                 type="number"
@@ -378,14 +400,12 @@ export default function RoomsAdmin() {
                 min="1"
                 value={formData.capacity}
                 onChange={handleChange}
-                className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-brand-gold"
+                className="admin-input"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-black tracking-widest text-brand-navy mb-2">
-                PRECIO POR NOCHE
-              </label>
+              <label className="admin-label">Precio por noche</label>
 
               <input
                 type="number"
@@ -395,36 +415,32 @@ export default function RoomsAdmin() {
                 value={formData.price_per_night}
                 onChange={handleChange}
                 placeholder="120.00"
-                className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-brand-gold"
+                className="admin-input"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-black tracking-widest text-brand-navy mb-2">
-                ESTADO
-              </label>
+              <label className="admin-label">Estado</label>
 
               <select
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
-                className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-brand-gold"
+                className="admin-input"
               >
                 <option value="active">Activa</option>
                 <option value="inactive">Inactiva</option>
                 <option value="maintenance">Mantenimiento</option>
               </select>
 
-              <p className="text-xs text-slate-500 mt-2">
+              <p className="text-xs text-[#6f6258] mt-2">
                 Activa: aparece en la web. Inactiva o mantenimiento: no debería
                 reservarse.
               </p>
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-xs font-black tracking-widest text-brand-navy mb-2">
-                URL DE IMAGEN PRINCIPAL
-              </label>
+              <label className="admin-label">URL de imagen principal</label>
 
               <input
                 type="text"
@@ -432,19 +448,17 @@ export default function RoomsAdmin() {
                 value={formData.main_image_url}
                 onChange={handleChange}
                 placeholder="https://..."
-                className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-brand-gold"
+                className="admin-input"
               />
 
-              <p className="text-xs text-slate-500 mt-2">
+              <p className="text-xs text-[#6f6258] mt-2">
                 Puedes pegar una URL o usar el botón “Subir imagen” en la lista
                 de habitaciones.
               </p>
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-xs font-black tracking-widest text-brand-navy mb-2">
-                DESCRIPCIÓN
-              </label>
+              <label className="admin-label">Descripción</label>
 
               <textarea
                 name="description"
@@ -452,7 +466,7 @@ export default function RoomsAdmin() {
                 value={formData.description}
                 onChange={handleChange}
                 placeholder="Describe servicios, camas, baño privado, WiFi, terraza, vista, etc."
-                className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none resize-none focus:ring-2 focus:ring-brand-gold"
+                className="admin-input resize-none"
               />
             </div>
           </div>
@@ -461,20 +475,20 @@ export default function RoomsAdmin() {
             <button
               type="submit"
               disabled={saving}
-              className="bg-brand-ocean text-white px-6 py-3 rounded-full font-black hover:bg-brand-dark transition disabled:opacity-60"
+              className="bg-[#2b1d12] text-white px-6 py-3 rounded-xl font-black hover:bg-[#3a291b] transition disabled:opacity-60"
             >
               {saving
                 ? "Guardando..."
                 : editingRoomId
-                ? "Actualizar habitación"
-                : "Crear habitación"}
+                  ? "Actualizar habitación"
+                  : "Crear habitación"}
             </button>
 
             {editingRoomId && (
               <button
                 type="button"
                 onClick={resetForm}
-                className="border border-slate-200 bg-white px-6 py-3 rounded-full font-black text-brand-dark hover:bg-slate-100 transition"
+                className="border border-[#eadfce] bg-[#fbf7ef] px-6 py-3 rounded-xl font-black text-[#2d261f] hover:bg-[#f7f1e8] transition"
               >
                 Cancelar edición
               </button>
@@ -482,32 +496,28 @@ export default function RoomsAdmin() {
           </div>
         </form>
 
-        {/* Filtros */}
-        <div className="bg-white rounded-3xl border border-slate-200 p-5 mt-8">
+        {/* FILTROS */}
+        <div className="bg-white rounded-[1.5rem] border border-[#eadfce] p-5 mt-6 shadow-sm">
           <div className="grid lg:grid-cols-[1fr_260px] gap-4">
             <div>
-              <label className="block text-xs font-black tracking-widest text-brand-navy mb-2">
-                BUSCAR HABITACIÓN
-              </label>
+              <label className="admin-label">Buscar habitación</label>
 
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 placeholder="Buscar por nombre o descripción..."
-                className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-brand-gold"
+                className="admin-input"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-black tracking-widest text-brand-navy mb-2">
-                FILTRAR POR ESTADO
-              </label>
+              <label className="admin-label">Filtrar por estado</label>
 
               <select
                 value={statusFilter}
                 onChange={(event) => setStatusFilter(event.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-brand-gold"
+                className="admin-input"
               >
                 <option value="all">Todas</option>
                 <option value="active">Activas</option>
@@ -517,51 +527,45 @@ export default function RoomsAdmin() {
             </div>
           </div>
 
-          <p className="text-sm text-slate-500 mt-3">
+          <p className="text-sm text-[#6f6258] mt-3 font-bold">
             Mostrando {filteredRooms.length} de {rooms.length} habitación(es).
           </p>
         </div>
 
-        {/* Lista */}
-        <div className="mt-8">
+        {/* LISTA */}
+        <div className="mt-6">
           {loading && (
-            <div className="bg-white rounded-3xl border border-slate-200 p-8 text-center font-bold text-slate-500">
+            <div className="bg-white rounded-[1.5rem] border border-[#eadfce] p-8 text-center font-bold text-[#6f6258] shadow-sm">
               Cargando habitaciones...
             </div>
           )}
 
           {!loading && rooms.length === 0 && (
-            <div className="bg-white rounded-3xl border border-slate-200 p-8 text-center">
-              <h2 className="text-2xl font-black text-brand-dark">
-                Aún no hay habitaciones registradas
-              </h2>
-
-              <p className="text-slate-500 mt-2">
-                Crea la primera habitación usando el formulario superior.
-              </p>
-            </div>
+            <EmptyBlock
+              title="Aún no hay habitaciones registradas"
+              text="Crea la primera habitación usando el formulario superior."
+            />
           )}
 
           {!loading && rooms.length > 0 && filteredRooms.length === 0 && (
-            <div className="bg-white rounded-3xl border border-slate-200 p-8 text-center">
-              <h2 className="text-2xl font-black text-brand-dark">
-                No se encontraron habitaciones
-              </h2>
-
-              <p className="text-slate-500 mt-2">
-                Prueba con otro nombre, descripción o estado.
-              </p>
-            </div>
+            <EmptyBlock
+              title="No se encontraron habitaciones"
+              text="Prueba con otro nombre, descripción o estado."
+            />
           )}
 
           {!loading && filteredRooms.length > 0 && (
-            <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden">
-              <div className="p-6 border-b border-slate-100">
-                <h2 className="text-2xl font-black text-brand-dark">
+            <div className="bg-white rounded-[1.5rem] border border-[#eadfce] overflow-hidden shadow-sm">
+              <div className="p-6 border-b border-[#eadfce]">
+                <p className="uppercase tracking-[0.2em] text-[11px] font-black text-[#a87545]">
+                  Registro
+                </p>
+
+                <h2 className="font-serif text-3xl leading-none tracking-[-0.035em] text-[#2d261f] mt-2">
                   Habitaciones registradas
                 </h2>
 
-                <p className="text-slate-500 text-sm mt-1">
+                <p className="text-[#6f6258] text-sm mt-2">
                   Gestiona disponibilidad, precios, imágenes y estado de cada
                   habitación.
                 </p>
@@ -569,7 +573,7 @@ export default function RoomsAdmin() {
 
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead className="bg-slate-50 text-slate-600">
+                  <thead className="bg-[#2b1d12] text-white">
                     <tr>
                       <th className="text-left px-5 py-4">Habitación</th>
                       <th className="text-left px-5 py-4">Capacidad</th>
@@ -583,11 +587,11 @@ export default function RoomsAdmin() {
                     {filteredRooms.map((room) => (
                       <tr
                         key={room.id}
-                        className="border-t border-slate-100 hover:bg-slate-50 transition"
+                        className="border-b border-[#eadfce] hover:bg-[#fbf7ef] transition"
                       >
                         <td className="px-5 py-4 min-w-[340px]">
                           <div className="flex items-center gap-4">
-                            <div className="w-20 h-20 bg-slate-100 rounded-2xl overflow-hidden shrink-0 border border-slate-200">
+                            <div className="w-20 h-20 bg-[#fbf7ef] rounded-2xl overflow-hidden shrink-0 border border-[#eadfce]">
                               {room.main_image_url ? (
                                 <img
                                   src={room.main_image_url}
@@ -595,22 +599,22 @@ export default function RoomsAdmin() {
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
-                                <div className="w-full h-full flex items-center justify-center text-xs text-slate-400 font-bold">
+                                <div className="w-full h-full flex items-center justify-center text-xs text-[#9d9187] font-bold">
                                   Sin foto
                                 </div>
                               )}
                             </div>
 
                             <div>
-                              <p className="font-black text-brand-dark">
+                              <p className="font-black text-[#2d261f]">
                                 {room.name || "Habitación sin nombre"}
                               </p>
 
-                              <p className="text-xs text-slate-500 mt-1">
+                              <p className="text-xs text-[#9d9187] mt-1 font-bold">
                                 Habitación #{room.id}
                               </p>
 
-                              <p className="text-sm text-slate-500 line-clamp-2 mt-2 max-w-xl">
+                              <p className="text-sm text-[#6f6258] line-clamp-2 mt-2 max-w-xl">
                                 {room.description || "Sin descripción"}
                               </p>
                             </div>
@@ -618,12 +622,12 @@ export default function RoomsAdmin() {
                         </td>
 
                         <td className="px-5 py-4">
-                          <span className="inline-flex rounded-full bg-blue-50 text-blue-700 px-3 py-1 font-black">
+                          <span className="inline-flex rounded-full bg-[#fbf7ef] border border-[#eadfce] text-[#2d261f] px-3 py-1 font-black">
                             {Number(room.capacity || 0)} persona(s)
                           </span>
                         </td>
 
-                        <td className="px-5 py-4 font-black text-brand-dark">
+                        <td className="px-5 py-4 font-black text-[#2d261f]">
                           {formatMoney(room.price_per_night)}
                         </td>
 
@@ -641,7 +645,7 @@ export default function RoomsAdmin() {
                             onChange={(event) =>
                               handleQuickStatusChange(room, event.target.value)
                             }
-                            className="block w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold outline-none"
+                            className="block w-full bg-[#fbf7ef] border border-[#eadfce] rounded-xl px-3 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-[#a87545]/25"
                           >
                             <option value="active">Activa</option>
                             <option value="inactive">Inactiva</option>
@@ -654,7 +658,7 @@ export default function RoomsAdmin() {
                             <button
                               type="button"
                               onClick={() => handleEdit(room)}
-                              className="bg-brand-ocean text-white px-4 py-2 rounded-full text-xs font-black hover:bg-brand-dark transition"
+                              className="bg-[#2b1d12] text-white px-4 py-2 rounded-xl text-xs font-black hover:bg-[#3a291b] transition"
                             >
                               Editar
                             </button>
@@ -674,10 +678,10 @@ export default function RoomsAdmin() {
 
                             <label
                               htmlFor={`room-image-${room.id}`}
-                              className={`cursor-pointer text-center border border-slate-200 px-4 py-2 rounded-full text-xs font-black transition ${
+                              className={`cursor-pointer text-center border px-4 py-2 rounded-xl text-xs font-black transition ${
                                 uploadingRoomId === room.id
-                                  ? "bg-slate-100 text-slate-400"
-                                  : "bg-white text-brand-dark hover:bg-slate-100"
+                                  ? "bg-[#f7f1e8] border-[#eadfce] text-[#9d9187]"
+                                  : "bg-[#a87545] border-[#a87545] text-white hover:bg-[#8f623a]"
                               }`}
                             >
                               {uploadingRoomId === room.id
@@ -696,5 +700,37 @@ export default function RoomsAdmin() {
         </div>
       </section>
     </main>
+  );
+}
+
+function SummaryCard({ title, value, helper, icon }) {
+  return (
+    <article className="bg-white rounded-[1.35rem] border border-[#eadfce] p-5 shadow-sm">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-black text-[#6f6258]">{title}</p>
+
+          <h2 className="text-3xl font-black text-[#2d261f] mt-2">{value}</h2>
+
+          <p className="text-xs text-[#9d9187] font-bold mt-1">{helper}</p>
+        </div>
+
+        <div className="w-11 h-11 rounded-xl bg-[#f7f1e8] border border-[#eadfce] flex items-center justify-center text-xl">
+          {icon}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function EmptyBlock({ title, text }) {
+  return (
+    <div className="bg-white rounded-[1.5rem] border border-[#eadfce] p-8 text-center shadow-sm">
+      <h2 className="font-serif text-3xl leading-none tracking-[-0.035em] text-[#2d261f]">
+        {title}
+      </h2>
+
+      <p className="text-[#6f6258] mt-3">{text}</p>
+    </div>
   );
 }
